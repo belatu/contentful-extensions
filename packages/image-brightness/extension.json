@@ -1,0 +1,31 @@
+{
+  "name": "Image Brightness",
+  "id": "image-brightness",
+  "fieldTypes": ["Boolean"],
+  "srcdoc": "./dist/index.html",
+  "sidebar": false,
+  "parameters": {
+    "instance": [
+      {
+        "id": "helpText",
+        "type": "Symbol",
+        "name": "Help text",
+        "description": "This help text will show up below the field."
+      },
+      {
+        "id": "assetFieldId",
+        "type": "Symbol",
+        "name": "Asset field id",
+        "description": "The field id of the asset.",
+        "required": true
+      },
+      {
+        "id": "areaOfInterest",
+        "type": "Object",
+        "name": "Area of interest",
+        "description":
+          "The section of the image for which you want to calculate the brightness."
+      }
+    ]
+  }
+}
