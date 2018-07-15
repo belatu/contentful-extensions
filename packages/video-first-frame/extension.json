@@ -1,7 +1,7 @@
 {
   "name": "Video First Frame",
   "id": "video-first-frame",
-  "fieldTypes": ["Asset", "Link"],
+  "fieldTypes": ["Object"],
   "srcdoc": "./dist/index.html",
   "sidebar": false,
   "parameters": {
