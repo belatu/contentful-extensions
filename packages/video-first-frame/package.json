@@ -1,0 +1,41 @@
+{
+  "name": "video-first-frame",
+  "version": "1.0.0",
+  "description": "Extract the first frame from a video asset",
+  "main": "dist/index.html",
+  "license": "MIT",
+  "scripts": {
+    "build": "gulp build",
+    "dev": "gulp dev",
+    "bundle": "gulp bundle --production",
+    "cf:create": "yarn bundle && contentful extension create --descriptor extension.json",
+    "cf:update": "yarn bundle && contentful extension update --descriptor extension.json",
+    "test": "eslint --cache --quiet packages/**/**/*.js"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-register": "^6.26.0",
+    "babelify": "^8.0.0",
+    "browser-sync": "^2.24.4",
+    "browserify": "^16.2.2",
+    "contentful-cli": "^0.11.0",
+    "del": "^3.0.0",
+    "gulp": "^4.0.0",
+    "gulp-inline-source": "^3.1.0",
+    "gulp-noop": "^1.0.0",
+    "gulp-sass": "^4.0.1",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-uglify": "^3.0.0",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0",
+    "yargs": "^11.0.0"
+  },
+  "dependencies": {
+    "preact": "^8.2.9"
+  }
+}

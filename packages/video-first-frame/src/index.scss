@@ -1,0 +1,29 @@
+body {
+  margin: 0;
+}
+
+.thumbnail {
+  width: 270px;
+  height: 270px;
+}
+
+.asset-card {
+  display: inline-flex;
+  flex-direction: column;
+  position: relative;
+  align-items: center;
+  margin: 0;
+
+  .cf-thumbnail {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 123px;
+    min-height: 123px;
+    font-size: 50px;
+    color: #c3cfd5;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid #d3dce0;
+    border-radius: 1px;
+  }
+}

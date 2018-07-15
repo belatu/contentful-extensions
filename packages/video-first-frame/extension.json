@@ -1,0 +1,19 @@
+{
+  "name": "Video First Frame",
+  "id": "video-first-frame",
+  "fieldTypes": ["Asset", "Link"],
+  "srcdoc": "./dist/index.html",
+  "sidebar": false,
+  "parameters": {
+    "instance": [
+      {
+        "id": "videoFieldId",
+        "type": "Symbol",
+        "name": "Image Field Id",
+        "description":
+          "The id of the video field that from which the first frame should be extracted.",
+        "required": true
+      }
+    ]
+  }
+}
