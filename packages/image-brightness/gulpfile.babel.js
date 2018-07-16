@@ -13,9 +13,12 @@ import { argv } from 'yargs';
 
 const PORT = 1234;
 const SRC = './src';
-const DEST = './dist';
+const BUILD = './build';
+const DIST = './dist';
 const PATHS = {
   scripts: `${SRC}/index.js`,
+  components: `${SRC}/components/**/*.js`,
+  lib: `${SRC}/lib/**/*.js`,
   styles: `${SRC}/index.scss`,
   html: `${SRC}/index.html`
 };
@@ -29,7 +32,7 @@ const serve = done => {
     port: PORT,
     https: true,
     server: {
-      baseDir: DEST
+      baseDir: BUILD
     }
   });
   done();
@@ -40,7 +43,7 @@ const reload = done => {
   done();
 };
 
-export const clean = () => del([DEST]);
+export const clean = () => del([BUILD]);
 
 const scripts = () =>
   browserify(PATHS.scripts)
@@ -49,29 +52,32 @@ const scripts = () =>
     .pipe(source('index.js'))
     .pipe(buffer())
     .pipe(isDev ? noop() : uglify())
-    .pipe(gulp.dest(DEST));
+    .pipe(gulp.dest(BUILD));
 
 const styles = () =>
   gulp
     .src(PATHS.styles)
     .pipe(sass().on('error', sass.logError))
-    .pipe(gulp.dest(DEST));
+    .pipe(gulp.dest(BUILD));
 
-const html = () => gulp.src(PATHS.html).pipe(gulp.dest(DEST));
+const html = () => gulp.src(PATHS.html).pipe(gulp.dest(BUILD));
 
 // Serve and watch for changes so we don't have to run `gulp` after each change.
 const watch = () => {
-  gulp.watch(PATHS.scripts, gulp.series(scripts, reload));
+  gulp.watch(
+    [PATHS.scripts, PATHS.components, PATHS.lib],
+    gulp.series(scripts, reload)
+  );
   gulp.watch(PATHS.styles, gulp.series(styles, reload));
   gulp.watch(PATHS.html, gulp.series(html, reload));
 };
 
-// Bundles the whole widget into one file which can be uploaded to Contentful.
+// Bundles the whole widget into one file which can be installed from Contentful.
 const inline = () =>
   gulp
-    .src(`${DEST}/index.html`)
+    .src(`${BUILD}/index.html`)
     .pipe(inlineSource())
-    .pipe(gulp.dest(DEST));
+    .pipe(gulp.dest(DIST));
 
 export const build = gulp.series(clean, gulp.parallel(scripts, styles, html));
 export const dev = gulp.series(build, serve, watch);

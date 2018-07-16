@@ -18,13 +18,6 @@
         "name": "Asset field id",
         "description": "The field id of the asset.",
         "required": true
-      },
-      {
-        "id": "areaOfInterest",
-        "type": "Object",
-        "name": "Area of interest",
-        "description":
-          "The section of the image for which you want to calculate the brightness."
       }
     ]
   }
