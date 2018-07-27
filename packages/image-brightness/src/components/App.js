@@ -1,19 +1,10 @@
 // eslint-disable-next-line no-unused-vars
 import { h, Component } from 'preact';
+import { get } from 'lodash';
 
 import calculateImageBrightness from '../lib/calculate-image-brightness';
-import RadioButton from './RadioButton';
+import Input from './Input';
 import Error from './Error';
-
-const LIGHT = 'light';
-const DARK = 'dark';
-
-const getBrightnessEnum = value => {
-  if (typeof value === 'undefined') {
-    return '';
-  }
-  return value ? DARK : LIGHT;
-};
 
 export default class App extends Component {
   constructor(props) {
@@ -24,15 +15,15 @@ export default class App extends Component {
     this.locale = field.locale;
 
     // FIXME: Figure out, why `parameters` is undefined.
-    // this.config = props.parameters.instance;
     this.config = {
-      imageFieldId: 'desktop'
+      imageFieldId: get(props, 'parameters.instance.imageFieldId', 'desktop'),
+      threshold: get(props, 'parameters.instance.threshold', 150)
     };
 
     const fieldValue = field.getValue();
 
     this.state = {
-      value: getBrightnessEnum(fieldValue),
+      value: fieldValue,
       error: ''
     };
   }
@@ -85,8 +76,7 @@ export default class App extends Component {
    * Handler for external field value changes (e.g. when multiple authors are
    * working on the same entry).
    */
-  handleValueChange = (fieldValue = undefined) => {
-    const value = getBrightnessEnum(fieldValue);
+  handleValueChange = value => {
     this.setState({ value, error: '' });
   };
 
@@ -108,7 +98,11 @@ export default class App extends Component {
         return;
       }
 
-      calculateImageBrightness(url, this.config.areaOfInterest)
+      calculateImageBrightness(
+        url,
+        this.config.areaOfInterest,
+        this.config.threshold
+      )
         .then(this.updateField)
         .catch(error => {
           this.setState({ error });
@@ -117,12 +111,11 @@ export default class App extends Component {
   };
 
   /**
-   * Update field and check radio button.
+   * Update field and input.
    */
-  updateField = brightness => {
+  updateField = value => {
     try {
-      const value = brightness > 0 ? LIGHT : DARK;
-      this.props.field.setValue(value === DARK);
+      this.props.field.setValue(value);
       this.setState({ value, error: '' });
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -133,7 +126,7 @@ export default class App extends Component {
   };
 
   /**
-   * Remove value and uncheck radio buttons.
+   * Remove value and clear input.
    */
   resetField = () => {
     try {
@@ -147,37 +140,16 @@ export default class App extends Component {
     }
   };
 
-  /**
-   * Handler for changes of the input value
-   */
-  handleClick = event => {
-    const { value } = event.target;
-    this.setState({ value });
-    this.props.field.setValue(value === DARK);
-  };
-
   // eslint-disable-next-line class-methods-use-this
   render(props, { value, error }) {
+    const label =
+      value &&
+      `It was automatically calculated that the image is (mostly) ${
+        value > 0 ? 'light' : 'dark'
+      }.`;
     return (
       <div>
-        <div class="cf-form-horizontal">
-          <RadioButton
-            onClick={this.handleClick}
-            checked={value === DARK}
-            label="Dark"
-            value={DARK}
-            id={DARK}
-            name="brightness"
-          />
-          <RadioButton
-            onClick={this.handleClick}
-            checked={value === LIGHT}
-            label="Light"
-            value={LIGHT}
-            id={LIGHT}
-            name="brightness"
-          />
-        </div>
+        <Input value={value} label={label} id="brightness" readonly />
         {error && <Error>{error}</Error>}
       </div>
     );

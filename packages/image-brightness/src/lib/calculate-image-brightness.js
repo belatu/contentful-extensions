@@ -1,15 +1,21 @@
+import { clamp } from 'lodash';
+
 /**
  * Get the average brightness of (a section of) an image.
  * Adapted from https://stackoverflow.com/a/13766539/4620154
  */
 
 const MAX_RETRIES = 3;
-const MEDIAN_BRIGHTNESS = 128;
 
-// Get the maximum value of the RGB channels.
-const calculatePixelBrightness = (r, g, b) => Math.max(Math.max(r, g), b);
+// Get the average value of the RGB channels.
+const calculatePixelBrightness = (r, g, b) => Math.floor((r + g + b) / 3);
 
-const calculateImageBrightness = (url, areaOfInterest = {}, retry = 1) => {
+const calculateImageBrightness = (
+  url,
+  areaOfInterest = {},
+  customThreshold,
+  retry = 1
+) => {
   // Area of interest is the section of the image for which we want to
   // calculate the brightness
   const defaultAreaOfInterest = { top: 0, right: 0, width: 1, height: 1 };
@@ -17,6 +23,7 @@ const calculateImageBrightness = (url, areaOfInterest = {}, retry = 1) => {
     ...defaultAreaOfInterest,
     ...areaOfInterest
   };
+  const threshold = clamp(customThreshold, 0, 255);
 
   return new Promise((resolve, reject) => {
     const image = new Image();
@@ -47,7 +54,7 @@ const calculateImageBrightness = (url, areaOfInterest = {}, retry = 1) => {
           data[x + 1],
           data[x + 2]
         );
-        if (pixelBrightness > MEDIAN_BRIGHTNESS) {
+        if (pixelBrightness > threshold) {
           lightPixels += 1;
         } else {
           darkPixels += 1;
@@ -57,12 +64,14 @@ const calculateImageBrightness = (url, areaOfInterest = {}, retry = 1) => {
       // Calculate average brightness
       const averageBrightness =
         (lightPixels - darkPixels) / (lightPixels + darkPixels);
-      resolve(averageBrightness);
+      resolve(Math.round(averageBrightness * 1000) / 1000);
     };
 
     image.onerror = () => {
       if (retry < MAX_RETRIES) {
-        resolve(calculateImageBrightness(url, areaOfInterest, retry + 1));
+        resolve(
+          calculateImageBrightness(url, areaOfInterest, threshold, retry + 1)
+        );
       }
       reject(
         new Error('The image failed to load. Reload the page to try again.')

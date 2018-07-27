@@ -1,7 +1,7 @@
 {
   "name": "Image Brightness",
   "id": "image-brightness",
-  "fieldTypes": ["Boolean"],
+  "fieldTypes": ["Number"],
   "srcdoc": "./dist/index.html",
   "sidebar": false,
   "parameters": {
@@ -17,6 +17,15 @@
         "type": "Symbol",
         "name": "Asset field id",
         "description": "The field id of the asset.",
+        "required": true
+      },
+      {
+        "id": "threshold",
+        "type": "Number",
+        "name": "Brightness threshold",
+        "description":
+          "The threshold above which a pixel's RGB average is considered bright. Must be between 0 and 255, default 128.",
+        "default": 128,
         "required": true
       }
     ]
