@@ -1,9 +1,15 @@
 // eslint-disable-next-line no-unused-vars
 import { h, Component } from 'preact';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 
-import calculateImageBrightness from '../lib/calculate-image-brightness';
-import Input from './Input';
+import loadImage from '../lib/load-image';
+import getImageData from '../lib/get-image-data';
+import getImageBrightness from '../lib/get-image-brightness';
+import getColorPalette from '../lib/get-color-palette';
+
+import Fieldset from './Fieldset';
+import Color from './Color';
+import Brightness from './Brightness';
 import Error from './Error';
 
 export default class App extends Component {
@@ -24,7 +30,8 @@ export default class App extends Component {
 
     this.state = {
       value: fieldValue,
-      error: ''
+      error: '',
+      retries: 0
     };
   }
 
@@ -84,13 +91,13 @@ export default class App extends Component {
    * Handler for changes to the image field value. Get the first image frame,
    * create a new image asset, and save the reference to the field.
    */
-  handleImageValueChange = value => {
-    if (!value || !value.sys.id) {
+  handleImageValueChange = imageValue => {
+    if (!imageValue || !imageValue.sys.id) {
       this.resetField();
       return;
     }
 
-    this.props.space.getAsset(value.sys.id).then(asset => {
+    this.props.space.getAsset(imageValue.sys.id).then(asset => {
       const { url } = asset.fields.file[this.locale];
 
       if (!url) {
@@ -98,13 +105,22 @@ export default class App extends Component {
         return;
       }
 
-      calculateImageBrightness(
-        url,
-        this.config.areaOfInterest,
-        this.config.threshold
-      )
-        .then(this.updateField)
-        .catch(error => {
+      loadImage(url)
+        .then(getImageData)
+        .then(imageData => {
+          const brightness = getImageBrightness(imageData, 150);
+          const colorPalette = getColorPalette(imageData, 6);
+          const [dominant, ...palette] = colorPalette;
+          const value = { brightness, dominant, palette };
+          this.setState({ value });
+          this.updateField(value);
+        })
+        .catch(e => {
+          // eslint-disable-next-line no-console
+          console.error(e);
+          const error = e.message
+            ? e.message
+            : 'Failed to extract colors from the image.';
           this.setState({ error });
         });
     });
@@ -142,14 +158,29 @@ export default class App extends Component {
 
   // eslint-disable-next-line class-methods-use-this
   render(props, { value, error }) {
-    const label =
-      value &&
-      `It was automatically calculated that the image is (mostly) ${
-        value > 0 ? 'light' : 'dark'
-      }.`;
+    if (isEmpty(value)) {
+      return (
+        <div>
+          <p>No value</p>
+          {error && <Error>{error}</Error>}
+        </div>
+      );
+    }
+
+    const { dominant, palette, brightness } = value;
     return (
       <div>
-        <Input value={value} label={label} id="brightness" readonly />
+        <Fieldset label="Dominant color" id="dominant-color">
+          <Color color={dominant} aria-labelledby="dominant-color" />
+        </Fieldset>
+        <Fieldset label="Color palette" id="color-palette">
+          {palette.map(color => (
+            <Color key={color} color={color} aria-labelledby="color-palette" />
+          ))}
+        </Fieldset>
+        <Fieldset label="Brightness" id="brightness">
+          <Brightness brightness={brightness} aria-labelledby="brightness" />
+        </Fieldset>
         {error && <Error>{error}</Error>}
       </div>
     );

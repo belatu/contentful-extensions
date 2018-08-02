@@ -1,3 +1,3 @@
-# Image Brightness
+# Image Color Palette
 
-This extension automatically calculates the average brightness of an image. Works with `Number` field types.
+This extension automatically calculates the average brightness of an image. Works with `Object` field types.
