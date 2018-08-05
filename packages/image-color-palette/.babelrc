@@ -1,0 +1,21 @@
+{
+  "presets": ["env"],
+  "plugins": [
+    ["lodash"],
+    ["transform-class-properties"],
+    ["transform-object-rest-spread"],
+    [
+      "transform-runtime",
+      {
+        "polyfill": false,
+        "regenerator": true
+      }
+    ],
+    [
+      "transform-react-jsx",
+      {
+        "pragma": "h"
+      }
+    ]
+  ]
+}

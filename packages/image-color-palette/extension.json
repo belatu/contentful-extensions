@@ -1,0 +1,33 @@
+{
+  "name": "Image Color Palette",
+  "id": "image-color-palette",
+  "fieldTypes": ["Symbols"],
+  "srcdoc": "./dist/index.html",
+  "sidebar": false,
+  "parameters": {
+    "instance": [
+      {
+        "id": "helpText",
+        "type": "Symbol",
+        "name": "Help text",
+        "description": "This help text will show up below the field."
+      },
+      {
+        "id": "assetFieldId",
+        "type": "Symbol",
+        "name": "Asset field id",
+        "description": "The field id of the asset.",
+        "required": true
+      },
+      {
+        "id": "numberOfColors",
+        "type": "Number",
+        "name": "Number of colors",
+        "description":
+          "The number of colors to extract from the image into a palette. Must be between 1 and 10, default 5.",
+        "default": 5,
+        "required": true
+      }
+    ]
+  }
+}
