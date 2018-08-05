@@ -5,10 +5,7 @@ import { get, isEmpty } from 'lodash';
 import loadImage from '../lib/load-image';
 import getImageData from '../lib/get-image-data';
 import getImageBrightness from '../lib/get-image-brightness';
-import getColorPalette from '../lib/get-color-palette';
 
-import Fieldset from './Fieldset';
-import Color from './Color';
 import Brightness from './Brightness';
 import Error from './Error';
 
@@ -22,14 +19,12 @@ export default class App extends Component {
 
     // FIXME: Figure out, why `parameters` is undefined.
     this.config = {
-      imageFieldId: get(props, 'parameters.instance.imageFieldId', 'desktop'),
+      assetFieldId: get(props, 'parameters.instance.assetFieldId', 'desktop'),
       threshold: get(props, 'parameters.instance.threshold', 150)
     };
 
-    const fieldValue = field.getValue();
-
     this.state = {
-      value: fieldValue,
+      value: field.getValue(),
       error: '',
       retries: 0
     };
@@ -37,13 +32,13 @@ export default class App extends Component {
 
   componentDidMount() {
     const { field, entry } = this.props;
-    const imageField = entry.fields[this.config.imageFieldId];
+    const assetField = entry.fields[this.config.assetFieldId];
 
-    if (!imageField) {
+    if (!assetField) {
       this.setState({
         // eslint-disable-next-line max-len
         error: `The extension could not be initialized because a field with id '${
-          this.config.imageFieldId
+          this.config.assetFieldId
         }' does not exist.'`
       });
       return;
@@ -55,14 +50,14 @@ export default class App extends Component {
     );
 
     // Callback for changes of the image field value.
-    this.detachImageValueChangeHandler = imageField.onValueChanged(
+    this.detachImageValueChangeHandler = assetField.onValueChanged(
       this.locale,
       this.handleImageValueChange
     );
 
     // Manually update the field value if it is not set on page load (e.g.
     // because the last attempt failed).
-    const imageValue = imageField.getValue(this.locale);
+    const imageValue = assetField.getValue(this.locale);
 
     if (imageValue && typeof field.getValue() === 'undefined') {
       this.handleImageValueChange(imageValue);
@@ -108,12 +103,11 @@ export default class App extends Component {
       loadImage(url)
         .then(getImageData)
         .then(imageData => {
-          const brightness = getImageBrightness(imageData, 150);
-          const colorPalette = getColorPalette(imageData, 6);
-          const [dominant, ...palette] = colorPalette;
-          const value = { brightness, dominant, palette };
-          this.setState({ value });
-          this.updateField(value);
+          const brightness = getImageBrightness(
+            imageData,
+            this.config.threshold
+          );
+          this.updateField(brightness);
         })
         .catch(e => {
           // eslint-disable-next-line no-console
@@ -167,20 +161,9 @@ export default class App extends Component {
       );
     }
 
-    const { dominant, palette, brightness } = value;
     return (
       <div>
-        <Fieldset label="Dominant color" id="dominant-color">
-          <Color color={dominant} aria-labelledby="dominant-color" />
-        </Fieldset>
-        <Fieldset label="Color palette" id="color-palette">
-          {palette.map(color => (
-            <Color key={color} color={color} aria-labelledby="color-palette" />
-          ))}
-        </Fieldset>
-        <Fieldset label="Brightness" id="brightness">
-          <Brightness brightness={brightness} aria-labelledby="brightness" />
-        </Fieldset>
+        <Brightness brightness={value} />
         {error && <Error>{error}</Error>}
       </div>
     );

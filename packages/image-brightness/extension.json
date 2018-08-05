@@ -1,7 +1,7 @@
 {
   "name": "Image Brightness",
   "id": "image-brightness",
-  "fieldTypes": ["Object"],
+  "fieldTypes": ["Number"],
   "srcdoc": "./dist/index.html",
   "sidebar": false,
   "parameters": {
